@@ -23,6 +23,7 @@ The issue isn't AI - it's shipping code without review. These commands force the
 | `/review` | Bugs, edge cases, code quality |
 | `/security-audit` | Auth, injection, tokens, data exposure |
 | `/check` | Full pipeline: tests + review + security |
+| `/audit` | **Everything** + requires you to explain the code |
 | `/architecture` | God objects, coupling, over-engineering |
 | `/deps` | Hallucinated packages, vulnerabilities |
 | `/tests` | Test quality, coverage, missing tests |
@@ -170,9 +171,35 @@ If you can't explain it, don't ship it.
 
 ---
 
+### `/audit` - Full Push Audit
+
+The "I'm about to push to production" command. Runs everything in sequence:
+
+```
+1. /deps          → Dependencies real and safe?
+2. /dry           → Duplicated logic?
+3. /architecture  → Structure maintainable?
+4. /tests         → Tests meaningful?
+5. /observability → Can see what's happening?
+6. /review        → Bugs hiding?
+7. /security-audit → Exploitable?
+8. /understand    → Can YOU explain this?
+```
+
+Ends with a sign-off checklist:
+- [ ] I can explain what this code does
+- [ ] I understand why this approach was chosen
+- [ ] I know what could go wrong
+- [ ] I know how to debug this if it breaks
+
+**Use for:** Production pushes, PRs, releases
+**Skip for:** Quick fixes, typos, docs-only changes
+
+---
+
 ## Suggested Workflow
 
-### Before Committing
+### Quick Changes
 ```
 /review
 ```
@@ -182,12 +209,9 @@ If you can't explain it, don't ship it.
 /check
 ```
 
-### Before Major Release
+### Before Production / PR / Release
 ```
-/architecture
-/deps
-/tests
-/observability
+/audit
 ```
 
 ### When Unsure
