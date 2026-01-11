@@ -30,6 +30,7 @@ The issue isn't AI - it's shipping code without review. These commands force the
 | `/observability` | Logging, metrics, error tracking |
 | `/dry` | Code duplication |
 | `/understand` | Forces you to explain the code |
+| `/ui` | **NEW** UI/UX reality check - feedback, states, accessibility |
 
 ## Install
 
@@ -171,6 +172,35 @@ If you can't explain it, don't ship it.
 
 ---
 
+### `/ui` - UI/UX Reality Check
+
+**The Golden Rule: Humans can't see behind the veil.**
+
+AI forgets users can't see the 1s and 0s. They don't know if their click registered, if data is loading, or if the app crashed. Every action needs visible feedback.
+
+**Checks:**
+- **Visibility of system status** - Does every action have feedback?
+- **Five states** - Loading, empty, error, success, edge cases all handled?
+- **Accessibility** - Keyboard navigation, focus states, screen reader support?
+- **Button states** - Hover, focus, active, disabled, loading?
+- **Form validation** - Inline errors, helpful messages, data preserved on error?
+- **Microcopy** - Human voice or robot speak?
+
+**AI NO-NOs it catches:**
+- Silent buttons (click happens, nothing visible)
+- Blank voids (no empty state guidance)
+- Cryptic errors ("Error 500" with no help)
+- Unescapable modals (no Escape key, no focus trap)
+- Frozen forms (submit with no loading state)
+- Missing hover/focus states
+- Robot voice microcopy
+
+**Output:** 20-point scoring system + specific issues + priority fixes
+
+**Use for:** Any UI before users see it
+
+---
+
 ### `/audit` - Full Push Audit
 
 The "I'm about to push to production" command. Runs everything in sequence:
@@ -248,6 +278,12 @@ Add to `~/.claude/CLAUDE.md`:
 **Suggest `/understand` when:**
 - Complex code generated
 - User accepted code without questions
+
+**Suggest `/ui` when:**
+- Any frontend/UI code being shipped
+- User says "looks good" without testing
+- Forms, buttons, modals generated
+- Before any user-facing release
 ```
 
 ---
