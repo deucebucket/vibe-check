@@ -35,21 +35,33 @@ First, figure out what kind of project this is and run appropriate tests:
 - Look for docker-compose with test services
 - Report if no tests found (this is a finding!)
 
-### Step 2: Run Adversarial Code Review
+### Step 2: Run UI/UX Check (if frontend)
+
+If the project has frontend code (React, Vue, HTML, CSS, etc.):
+
+Execute the `/ui` command logic:
+- Check for visible feedback on all actions
+- Verify loading, empty, error, success states exist
+- Look for AI NO-NOs (silent buttons, cryptic errors, missing states)
+- Quick accessibility check (keyboard nav, focus states)
+
+Skip this step for backend-only projects.
+
+### Step 3: Run Adversarial Code Review
 
 Execute the `/review` command logic:
 - Get git diff
 - Review with senior-dev-who-hates-this-code mindset
 - Categorize findings by severity
 
-### Step 3: Run Security Audit
+### Step 4: Run Security Audit
 
 Execute the `/security-audit` command logic:
 - Check for common vibe coder security mistakes
 - Apply the "blast radius" question
 - Categorize findings
 
-### Step 4: Report Everything
+### Step 5: Report Everything
 
 Present a unified report:
 
@@ -59,6 +71,10 @@ Present a unified report:
 ### Test Results
 - Status: PASSED / FAILED / NO TESTS FOUND
 - [Details of any failures]
+
+### UI/UX Check (if frontend)
+- Status: GOOD / NEEDS WORK / AI SLOP / SKIPPED
+- [Summary of issues: missing states, silent buttons, etc.]
 
 ### Code Review
 - Status: READY / HAS ISSUES

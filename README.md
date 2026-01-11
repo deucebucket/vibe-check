@@ -211,9 +211,10 @@ The "I'm about to push to production" command. Runs everything in sequence:
 3. /architecture  → Structure maintainable?
 4. /tests         → Tests meaningful?
 5. /observability → Can see what's happening?
-6. /review        → Bugs hiding?
-7. /security-audit → Exploitable?
-8. /understand    → Can YOU explain this?
+6. /ui            → Does UI give feedback? (if frontend)
+7. /review        → Bugs hiding?
+8. /security-audit → Exploitable?
+9. /understand    → Can YOU explain this?
 ```
 
 Ends with a sign-off checklist:

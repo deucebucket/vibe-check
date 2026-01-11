@@ -14,9 +14,10 @@ Complete audit flow before pushing. Runs all checks in sequence, then requires y
 3. /architecture  → Is the structure maintainable?
 4. /tests         → Are tests meaningful?
 5. /observability → Can we see what's happening in prod?
-6. /review        → What bugs are hiding?
-7. /security-audit → What can be exploited?
-8. /understand    → Can YOU explain this code?
+6. /ui            → Does the UI give users feedback? (if frontend)
+7. /review        → What bugs are hiding?
+8. /security-audit → What can be exploited?
+9. /understand    → Can YOU explain this code?
 
 → Final Report + Sign-off
 ```
@@ -59,15 +60,23 @@ Run each check in sequence. Track findings as you go.
 - Look for silent failures
 - Record: GOOD / NEEDS WORK / BLIND
 
+**6. UI/UX Check (`/ui` logic)** - *Skip if no frontend*
+- Check visibility of system status (feedback for every action)
+- Verify all five states handled (loading, empty, error, success, edge)
+- Check accessibility basics (keyboard, focus, ARIA)
+- Look for AI NO-NOs (silent buttons, blank voids, cryptic errors)
+- Assess microcopy (human voice vs robot speak)
+- Record: HUMAN / NEEDS WORK / AI SLOP
+
 ### Phase 3: Risk Assessment
 
-**6. Code Review (`/review` logic)**
+**7. Code Review (`/review` logic)**
 - Adversarial review of changes
 - Find bugs, edge cases, race conditions
 - Categorize by severity
 - Record: READY / HAS ISSUES / NOT READY
 
-**7. Security Audit (`/security-audit` logic)**
+**8. Security Audit (`/security-audit` logic)**
 - Check auth and token handling
 - Look for injection vulnerabilities
 - Assess blast radius
@@ -75,7 +84,7 @@ Run each check in sequence. Track findings as you go.
 
 ### Phase 4: Understanding Check
 
-**8. Code Understanding (`/understand` logic)**
+**9. Code Understanding (`/understand` logic)**
 
 Before signing off, the developer must explain:
 
@@ -105,6 +114,7 @@ Lines added/removed: [+X / -Y]
 | Architecture | [PASS/FAIL] | [count] |
 | Tests | [PASS/FAIL] | [count] |
 | Observability | [PASS/FAIL] | [count] |
+| UI/UX | [PASS/FAIL/SKIP] | [count] |
 | Code Review | [PASS/FAIL] | [count] |
 | Security | [PASS/FAIL] | [count] |
 
