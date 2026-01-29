@@ -6,13 +6,14 @@ All notable changes to vibe-check will be documented in this file.
 
 ### Added
 
-- **`/live`** - Live browser testing via Chrome DevTools MCP
-  - Claude controls a real Chrome browser
-  - Click buttons, fill forms, check console errors
-  - No vision models needed - direct DOM access
-  - 26 browser control tools available
-  - Network request monitoring
-  - Performance analysis
+- **`/live`** - Comprehensive live browser testing
+  - **ALL browsers**: Chrome, Firefox, Safari, Edge via Playwright MCP
+  - **ALL console logs**: Errors, warnings, info, network failures
+  - **ALL network requests**: Monitor, audit, catch failures
+  - **ALL interactive elements**: Click every button, fill every form
+  - **ALL accessibility**: Keyboard nav, ARIA, focus states, contrast
+  - **ALL performance**: Load time, runtime, memory, animations
+  - 10 testing phases covering everything a user could encounter
 
 ### Changed
 
@@ -23,7 +24,13 @@ All notable changes to vibe-check will be documented in this file.
 
 ### Prerequisites
 
-- Chrome DevTools MCP: `claude mcp add chrome-devtools --scope user npx chrome-devtools-mcp@latest`
+```bash
+# Cross-browser testing (Chrome, Firefox, Safari, Edge)
+claude mcp add playwright --scope user npx @playwright/mcp@latest
+
+# Chrome-specific deep inspection
+claude mcp add chrome-devtools --scope user npx chrome-devtools-mcp@latest
+```
 
 ---
 

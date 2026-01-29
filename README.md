@@ -256,40 +256,48 @@ Generates Playwright test code that clicks through your app like a real user.
 
 ---
 
-### `/live` - Live Browser Testing (Interactive)
+### `/live` - Live Browser Testing (Comprehensive)
 
-**Claude controls a real browser and tests your running app.**
+**Test EVERYTHING across ALL browsers.**
 
-Uses Chrome DevTools MCP to directly interact with your app - no screenshots, no vision models, just direct DOM access.
+Uses Playwright MCP + Chrome DevTools MCP to control real browsers - Chrome, Firefox, Safari, Edge - and test every aspect of your running app.
 
 **Prerequisites:**
 ```bash
+# All browsers
+claude mcp add playwright --scope user npx @playwright/mcp@latest
+
+# Chrome deep inspection
 claude mcp add chrome-devtools --scope user npx chrome-devtools-mcp@latest
 ```
 
-**Capabilities (26 tools):**
-- **Click, fill, hover** - Interact with any element
-- **Run JavaScript** - Query the DOM directly
-- **Console access** - See all errors and warnings
-- **Network monitoring** - See all API calls and failures
-- **Performance analysis** - Lighthouse-style insights
+**10 Testing Phases:**
+1. **Cross-Browser** - Test in Chrome, Firefox, Safari, Edge
+2. **Console Logs** - All errors, warnings, debug output
+3. **Network Audit** - All requests, failures, slow responses
+4. **Interactive Elements** - Click every button, verify response
+5. **Form Testing** - Valid, invalid, empty, edge cases, XSS/SQLi
+6. **Navigation** - All routes, links, back/forward, deep links
+7. **Accessibility** - Keyboard, focus, ARIA, contrast
+8. **Performance** - Load time, runtime, memory, animations
+9. **State Management** - Refresh, multi-tab, session persistence
+10. **Error Handling** - Offline, API errors, edge cases
 
 **Example usage:**
 ```
-"Go to localhost:3000 and click every button. Report which ones don't work."
-"Test the signup flow with test@example.com and password123"
-"Check localhost:3000 for console errors"
+"Test localhost:3000 in Chrome, Firefox, and Safari. Click every button,
+fill every form, check all console errors. Report everything broken."
 ```
 
 **What it checks:**
-- Every button actually responds to clicks
-- Forms submit and show feedback
-- No console errors
-- No failed network requests
-- No overlapping clickable elements
-- No tiny touch targets
+- Every button in every browser
+- Every form with valid/invalid/edge case data
+- Every console error and warning
+- Every network request and failure
+- Every accessibility issue
+- Every performance problem
 
-**Use for:** Quick smoke tests, debugging, verifying fixes work
+**Use for:** Full QA before shipping, cross-browser verification, comprehensive audits
 
 ---
 

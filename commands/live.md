@@ -1,266 +1,419 @@
-# Live Browser Testing
+# Live Browser Testing - Test EVERYTHING
 
-**Test your app in a REAL browser, controlled by Claude.**
+**Test your app across ALL browsers, check ALL logs, verify EVERYTHING works.**
 
-This command uses Chrome DevTools MCP to interact with your running app - clicking buttons, filling forms, checking for errors - just like a real user would.
-
-**No screenshots. No vision models. Direct DOM access.**
+This command uses browser automation MCPs to control real browsers - Chrome, Firefox, Safari, Edge - clicking buttons, filling forms, checking console errors, monitoring network requests, and catching every issue a real user would hit.
 
 ---
 
 ## Prerequisites
 
-Chrome DevTools MCP must be installed:
+Install the browser MCPs:
+
 ```bash
+# Playwright MCP - ALL browsers (Chrome, Firefox, Safari, Edge)
+claude mcp add playwright --scope user npx @playwright/mcp@latest
+
+# Chrome DevTools MCP - Chrome-specific deep inspection
 claude mcp add chrome-devtools --scope user npx chrome-devtools-mcp@latest
 ```
 
-Then restart Claude Code.
+Restart Claude Code after installing.
 
 ---
 
-## Available Browser Tools
+## The Full Testing Protocol
 
-Once installed, Claude has access to:
+### Phase 1: Cross-Browser Testing
 
-### Navigation
-| Tool | What it does |
-|------|-------------|
-| `navigate_page` | Go to a URL |
-| `new_page` | Open new tab |
-| `close_page` | Close tab |
-| `list_pages` | See all open tabs |
-| `select_page` | Switch to a tab |
-| `wait_for` | Wait for element/network |
-
-### UI Interaction
-| Tool | What it does |
-|------|-------------|
-| `click` | Click an element |
-| `fill` | Type into an input |
-| `fill_form` | Fill entire form at once |
-| `hover` | Hover over element |
-| `press_key` | Press keyboard key |
-| `handle_dialog` | Accept/dismiss alerts |
-| `upload_file` | Upload a file |
-| `drag` | Drag and drop |
-
-### Inspection
-| Tool | What it does |
-|------|-------------|
-| `evaluate_script` | Run JavaScript in page |
-| `take_screenshot` | Capture the page |
-| `take_snapshot` | Get DOM state |
-| `list_console_messages` | See console output |
-| `get_console_message` | Get specific message |
-| `list_network_requests` | See all network calls |
-| `get_network_request` | Inspect specific request |
-
-### Performance
-| Tool | What it does |
-|------|-------------|
-| `performance_start_trace` | Start recording |
-| `performance_stop_trace` | Stop recording |
-| `performance_analyze_insight` | Get Lighthouse-style analysis |
-
----
-
-## Testing Protocol
-
-### Step 1: Open the App
-
-First, navigate to your running app:
-```
-Navigate to http://localhost:3000
-```
-
-Claude will use `navigate_page` to open Chrome and go to that URL.
-
-### Step 2: Discover All Interactive Elements
-
-Run JavaScript to find everything clickable:
-```javascript
-// Claude runs this via evaluate_script
-const elements = [];
-document.querySelectorAll('button, a, input, select, textarea, [onclick], [role="button"]').forEach(el => {
-  const rect = el.getBoundingClientRect();
-  elements.push({
-    tag: el.tagName,
-    text: el.innerText?.slice(0, 50) || el.value || el.placeholder || '',
-    type: el.type || '',
-    id: el.id,
-    class: el.className,
-    visible: rect.width > 0 && rect.height > 0,
-    disabled: el.disabled,
-    selector: el.id ? `#${el.id}` : null
-  });
-});
-elements;
-```
-
-### Step 3: Test Each Button
-
-For each button found:
-1. Click it
-2. Check for console errors
-3. Check for network errors
-4. Verify something changed
+Test in ALL major browsers, not just Chrome:
 
 ```
-Click the "Submit" button
-→ Check console for errors
-→ Check if success message appeared
-→ Report result
+Test localhost:3000 in:
+1. Chrome (Chromium)
+2. Firefox
+3. Safari (WebKit)
+4. Edge
+
+For each browser:
+- Navigate to homepage
+- Click all buttons
+- Fill all forms
+- Check console for errors
+- Check network for failures
+- Report any browser-specific issues
 ```
 
-### Step 4: Test Forms
+**Why this matters:**
+- CSS renders differently
+- JavaScript APIs vary
+- Event handling differs
+- Layout bugs are browser-specific
 
-For each form:
-1. Fill with test data
-2. Submit
-3. Check response
-4. Verify validation works
+### Phase 2: Console Log Analysis
 
-```
-Fill the login form:
-- email: test@example.com
-- password: TestPass123!
-Click Submit
-Check for success or error message
-```
+Check EVERYTHING in the console:
 
-### Step 5: Check for Console Errors
+| Level | What to Look For |
+|-------|------------------|
+| **Errors** | JavaScript exceptions, failed assertions, React errors |
+| **Warnings** | Deprecation notices, performance warnings, accessibility issues |
+| **Info** | Debug output that shouldn't be in production |
+| **Network Errors** | CORS failures, 404s, 500s, timeouts |
 
 ```
 List all console messages
-Filter for errors and warnings
-Report any issues found
+Filter by type: error, warning
+Check for:
+- Uncaught exceptions
+- Failed to load resource
+- CORS policy blocked
+- React/Vue/Angular errors
+- Unhandled promise rejections
+- Deprecation warnings
 ```
 
-### Step 6: Check Network Requests
+### Phase 3: Network Request Audit
+
+Monitor ALL network traffic:
 
 ```
-List all network requests
-Check for failed requests (4xx, 5xx)
-Check for slow requests (> 3 seconds)
-Report any issues
+List all network requests and check for:
+
+❌ FAILURES
+- 4xx errors (client errors)
+- 5xx errors (server errors)
+- CORS blocked requests
+- Timeout failures
+- SSL/TLS errors
+
+⚠️ WARNINGS
+- Slow requests (> 3 seconds)
+- Large payloads (> 1MB)
+- Excessive requests (API spam)
+- Missing caching headers
+- Mixed content (HTTP on HTTPS)
+
+✓ VERIFY
+- Auth tokens being sent correctly
+- API responses have expected structure
+- No sensitive data in URLs
+```
+
+### Phase 4: Interactive Element Testing
+
+Test EVERY clickable thing:
+
+```javascript
+// Find all interactive elements
+const interactive = document.querySelectorAll(`
+  button,
+  a[href],
+  input,
+  select,
+  textarea,
+  [onclick],
+  [role="button"],
+  [role="link"],
+  [role="checkbox"],
+  [role="radio"],
+  [role="tab"],
+  [tabindex]:not([tabindex="-1"])
+`);
+```
+
+For each element:
+1. **Is it visible?** (not display:none, not zero-size)
+2. **Is it clickable?** (not disabled, not covered)
+3. **Does it respond?** (click and verify something happens)
+4. **Any errors after click?** (check console)
+5. **Correct behavior?** (expected action occurred)
+
+### Phase 5: Form Testing
+
+Test ALL forms with multiple scenarios:
+
+```
+For each form found:
+
+1. HAPPY PATH
+   - Fill with valid data
+   - Submit
+   - Verify success
+
+2. VALIDATION
+   - Submit empty (required fields)
+   - Submit invalid email
+   - Submit invalid phone
+   - Submit too-short password
+   - Verify error messages appear
+
+3. EDGE CASES
+   - Very long input (1000+ chars)
+   - Special characters (!@#$%^&*)
+   - Unicode (émojis 🎉, 日本語)
+   - Script injection (<script>alert('xss')</script>)
+   - SQL injection ('; DROP TABLE users;--)
+
+4. ERROR RECOVERY
+   - Cause a server error
+   - Verify data preserved
+   - Verify user can retry
+```
+
+### Phase 6: Navigation Testing
+
+Test ALL routes and links:
+
+```
+1. Crawl the site, find all internal links
+2. Visit each page
+3. Check for:
+   - 404 pages
+   - Redirect loops
+   - Slow page loads
+   - Console errors on each page
+   - Missing content
+   - Broken layouts
+
+4. Test browser navigation:
+   - Back button works
+   - Forward button works
+   - Refresh preserves state (where expected)
+   - Deep links work directly
+```
+
+### Phase 7: Accessibility Audit
+
+Test keyboard and screen reader access:
+
+```
+1. KEYBOARD NAVIGATION
+   - Tab through all elements
+   - Verify focus is visible
+   - Verify focus order is logical
+   - Escape closes modals
+   - Enter activates buttons
+
+2. ACCESSIBILITY TREE
+   - All images have alt text
+   - All inputs have labels
+   - ARIA roles are correct
+   - Heading hierarchy is valid
+   - Color contrast passes
+
+3. SCREEN READER
+   - Playwright's accessibility snapshot
+   - Verify all content is announced
+   - Verify interactive elements are labeled
+```
+
+### Phase 8: Performance Check
+
+Test speed and efficiency:
+
+```
+1. PAGE LOAD
+   - Time to first paint
+   - Time to interactive
+   - Largest contentful paint
+   - Total blocking time
+
+2. RUNTIME
+   - Memory usage over time
+   - CPU usage during interactions
+   - Animation frame rate (60fps target)
+   - Layout thrashing
+
+3. NETWORK
+   - Total transfer size
+   - Number of requests
+   - Waterfall analysis
+   - Cache effectiveness
+```
+
+### Phase 9: State Management
+
+Test data persistence and state:
+
+```
+1. REFRESH TEST
+   - Fill form partially
+   - Refresh page
+   - Is data preserved? (if it should be)
+
+2. MULTI-TAB
+   - Open app in two tabs
+   - Make change in tab 1
+   - Does tab 2 reflect it? (if it should)
+
+3. LOGOUT/LOGIN
+   - Log out
+   - Verify protected data is cleared
+   - Log back in
+   - Verify state is restored
+
+4. SESSION
+   - Close browser
+   - Reopen
+   - Is session preserved correctly?
+```
+
+### Phase 10: Error Handling
+
+Deliberately break things:
+
+```
+1. NETWORK FAILURES
+   - Simulate offline mode
+   - Does app handle gracefully?
+   - Are there retry mechanisms?
+
+2. API ERRORS
+   - What happens on 500 response?
+   - What happens on timeout?
+   - Is error displayed to user?
+
+3. INVALID DATA
+   - Send malformed API response
+   - Does app crash or handle it?
+
+4. EDGE CASES
+   - Empty lists
+   - Very long lists (1000+ items)
+   - Missing images
+   - Invalid URLs
 ```
 
 ---
 
 ## Quick Commands
 
-### Full Site Audit
+### Full Audit (All Browsers)
 ```
-"Go to localhost:3000 and test every button and form. Report what's broken."
-```
-
-### Specific Flow Test
-```
-"Test the signup flow: go to /signup, fill the form with test data, submit, and verify success."
+"Test localhost:3000 in Chrome, Firefox, and Safari. Click every button,
+fill every form, check all console errors and network requests.
+Report everything that's broken."
 ```
 
-### Error Check
+### Single Browser Quick Test
 ```
-"Go to localhost:3000, click around, and tell me if there are any console errors."
+"Go to localhost:3000 in Chrome and click through the main user flows.
+Report any errors."
 ```
 
-### Performance Check
+### Console Error Hunt
 ```
-"Analyze the performance of localhost:3000 and tell me what's slow."
+"Navigate through all pages of localhost:3000 and collect every
+console error and warning. List them all."
+```
+
+### Network Audit
+```
+"Monitor all network requests on localhost:3000 while I click around.
+Report any failures, slow requests, or errors."
+```
+
+### Form Fuzzing
+```
+"Find all forms on localhost:3000 and test them with valid data,
+invalid data, empty data, and edge cases. Report validation issues."
+```
+
+### Accessibility Check
+```
+"Check localhost:3000 for accessibility issues - keyboard navigation,
+focus states, ARIA labels, color contrast."
+```
+
+### Performance Profile
+```
+"Profile the performance of localhost:3000 - page load time,
+network requests, runtime performance. What's slow?"
+```
+
+### Cross-Browser Comparison
+```
+"Open localhost:3000 in Chrome, Firefox, and Safari simultaneously.
+Report any differences in appearance or behavior."
 ```
 
 ---
 
-## What Claude Checks
+## Browser-Specific Tools
 
-### Buttons
-- [ ] Does the button respond to clicks?
-- [ ] Does clicking trigger the expected action?
-- [ ] Any console errors after clicking?
-- [ ] Any failed network requests?
+### Chrome DevTools MCP
+Best for:
+- Deep performance profiling
+- Network throttling
+- JavaScript debugging
+- Memory analysis
 
-### Forms
-- [ ] Can all fields be filled?
-- [ ] Does submit trigger correctly?
-- [ ] Does validation work?
-- [ ] Is data preserved on error?
-- [ ] Is there success/error feedback?
+### Playwright MCP
+Best for:
+- Cross-browser testing (Chrome, Firefox, Safari, Edge)
+- Accessibility tree inspection
+- Consistent API across browsers
+- Screenshot comparison
 
-### Links
-- [ ] Do internal links navigate correctly?
-- [ ] Any 404s?
-- [ ] Any broken external links?
+---
+
+## What Gets Checked
+
+### Every Button
+- [ ] Visible and not hidden
+- [ ] Not disabled unexpectedly
+- [ ] Responds to click
+- [ ] Triggers expected action
+- [ ] No console errors after click
+- [ ] Works in all browsers
+
+### Every Form
+- [ ] All fields fillable
+- [ ] Validation works correctly
+- [ ] Submit triggers correctly
+- [ ] Success/error feedback shown
+- [ ] Data preserved on error
+- [ ] Works in all browsers
+
+### Every Link
+- [ ] Points to valid destination
+- [ ] No 404s
+- [ ] Opens correctly (same tab vs new tab)
+- [ ] Works in all browsers
+
+### Every Page
+- [ ] Loads without errors
+- [ ] No console errors
+- [ ] No network failures
+- [ ] Renders correctly in all browsers
+- [ ] Responsive on mobile/tablet
 
 ### Console
-- [ ] Any JavaScript errors?
-- [ ] Any warnings that indicate bugs?
-- [ ] Any failed assertions?
+- [ ] No JavaScript errors
+- [ ] No unhandled promise rejections
+- [ ] No deprecation warnings (or they're acknowledged)
+- [ ] No debug logs in production
 
 ### Network
-- [ ] Any failed API calls?
-- [ ] Any extremely slow requests?
-- [ ] Any CORS errors?
+- [ ] All requests succeed
+- [ ] No CORS errors
+- [ ] No timeouts
+- [ ] No excessive requests
+- [ ] Reasonable response times
 
-### DOM Issues
-- [ ] Any elements with zero size?
-- [ ] Any elements off-screen?
-- [ ] Any overlapping clickable elements?
+### Accessibility
+- [ ] Keyboard navigable
+- [ ] Focus visible
+- [ ] All inputs labeled
+- [ ] Images have alt text
+- [ ] Color contrast passes
 
----
-
-## DOM Inspection Scripts
-
-Claude can run these to check for issues:
-
-### Find Broken Buttons (no click handler)
-```javascript
-[...document.querySelectorAll('button')].filter(b => {
-  const listeners = getEventListeners?.(b) || {};
-  return !listeners.click && !b.onclick && !b.form;
-}).map(b => b.innerText);
-```
-
-### Find Overlapping Elements
-```javascript
-const clickables = [...document.querySelectorAll('button, a, [onclick]')];
-const overlaps = [];
-for (let i = 0; i < clickables.length; i++) {
-  for (let j = i + 1; j < clickables.length; j++) {
-    const r1 = clickables[i].getBoundingClientRect();
-    const r2 = clickables[j].getBoundingClientRect();
-    if (!(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom)) {
-      overlaps.push([clickables[i].innerText, clickables[j].innerText]);
-    }
-  }
-}
-overlaps;
-```
-
-### Find Tiny Touch Targets
-```javascript
-[...document.querySelectorAll('button, a, input')].filter(el => {
-  const r = el.getBoundingClientRect();
-  return r.width > 0 && (r.width < 44 || r.height < 44);
-}).map(el => ({ text: el.innerText?.slice(0, 30), size: `${r.width}x${r.height}` }));
-```
-
-### Find Missing Labels
-```javascript
-[...document.querySelectorAll('input, select, textarea')].filter(el => {
-  const id = el.id;
-  const label = id ? document.querySelector(`label[for="${id}"]`) : null;
-  const ariaLabel = el.getAttribute('aria-label');
-  const ariaLabelledBy = el.getAttribute('aria-labelledby');
-  return !label && !ariaLabel && !ariaLabelledBy && !el.placeholder;
-}).map(el => el.name || el.id || el.type);
-```
-
-### Find Console Errors
-```javascript
-// Claude uses list_console_messages tool
-// Then filters for type: 'error'
-```
+### Performance
+- [ ] Page loads in < 3 seconds
+- [ ] Time to interactive < 5 seconds
+- [ ] No memory leaks
+- [ ] Smooth animations (60fps)
 
 ---
 
@@ -270,78 +423,112 @@ overlaps;
 ## Live Browser Test Results
 
 ### App: [URL]
-### Test Date: [date]
+### Date: [timestamp]
 
-### Elements Found
-- Buttons: X
-- Links: X
-- Forms: X
-- Inputs: X
+---
 
-### Button Test Results
-| Button | Clicked | Response | Errors |
-|--------|---------|----------|--------|
-| Submit | ✓ | Success toast | None |
-| Delete | ✓ | Nothing happened | Console error |
-| Cancel | ✓ | Modal closed | None |
+## Cross-Browser Results
 
-### Form Test Results
-| Form | Filled | Submitted | Result |
-|------|--------|-----------|--------|
-| Login | ✓ | ✓ | Redirected to /dashboard |
-| Signup | ✓ | ✓ | Validation error shown |
+| Browser | Version | Status | Issues |
+|---------|---------|--------|--------|
+| Chrome | 121 | ✓ Pass | 0 |
+| Firefox | 122 | ⚠ Issues | 2 |
+| Safari | 17 | ✓ Pass | 0 |
+| Edge | 121 | ✓ Pass | 0 |
 
-### Console Errors
-[List any errors found]
+### Browser-Specific Issues
+[List any issues that only appear in specific browsers]
 
-### Network Failures
-[List any failed requests]
+---
 
-### DOM Issues
-- Overlapping elements: [count]
-- Tiny touch targets: [count]
-- Missing labels: [count]
+## Console Errors
 
-### Verdict
-[ALL WORKING / ISSUES FOUND / BROKEN]
+### Critical (Errors)
+| Page | Error | Count |
+|------|-------|-------|
+| /dashboard | Uncaught TypeError: x is undefined | 3 |
 
-### Issues to Fix
+### Warnings
+| Page | Warning | Count |
+|------|---------|-------|
+| /settings | React warning: key prop | 12 |
+
+---
+
+## Network Issues
+
+### Failed Requests
+| URL | Status | Page |
+|-----|--------|------|
+| /api/user | 500 | /dashboard |
+
+### Slow Requests (> 3s)
+| URL | Time | Page |
+|-----|------|------|
+| /api/analytics | 4.2s | /home |
+
+---
+
+## Button Test Results
+
+| Button | Page | Chrome | Firefox | Safari | Errors |
+|--------|------|--------|---------|--------|--------|
+| Submit | /form | ✓ | ✓ | ✓ | None |
+| Delete | /list | ✓ | ✗ | ✓ | Firefox: no response |
+
+---
+
+## Form Test Results
+
+| Form | Valid | Invalid | Empty | Edge Cases |
+|------|-------|---------|-------|------------|
+| Login | ✓ | ✓ | ✓ | ✓ |
+| Signup | ✓ | ⚠ | ✓ | ✗ XSS possible |
+
+---
+
+## Accessibility Issues
+
+| Issue | Element | Page | Severity |
+|-------|---------|------|----------|
+| Missing label | input#email | /contact | High |
+| Low contrast | .muted-text | /about | Medium |
+
+---
+
+## Performance Summary
+
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| First Paint | 1.2s | < 1.5s | ✓ |
+| Interactive | 3.4s | < 3s | ⚠ |
+| Total Size | 2.4MB | < 2MB | ⚠ |
+
+---
+
+## Overall Verdict
+
+**Status: [PASS / ISSUES FOUND / CRITICAL FAILURES]**
+
+### Must Fix Before Ship
 1. [Critical issues]
-2. [High priority]
-3. [Low priority]
+
+### Should Fix
+2. [High priority issues]
+
+### Nice to Fix
+3. [Low priority issues]
+
+### Browser-Specific Fixes
+4. [Issues only in certain browsers]
 ```
-
----
-
-## Tips
-
-1. **Start the app first** - Claude can't test what's not running
-2. **Use localhost URLs** - Claude controls your local Chrome
-3. **Check the Chrome window** - You can watch Claude clicking around
-4. **Be specific** - "Test the checkout flow" is better than "test everything"
-5. **Run multiple times** - Some bugs only show up intermittently
-
----
-
-## Integration with /flow
-
-`/live` tests a running app interactively.
-`/flow` generates test code to run later.
-
-Use `/live` for:
-- Quick smoke tests
-- Debugging specific issues
-- Verifying a fix works
-
-Use `/flow` for:
-- CI/CD pipelines
-- Regression testing
-- Documentation
 
 ---
 
 ## Remember
 
-**The browser knows everything.** We're not guessing from screenshots - we're directly querying the DOM, checking the console, inspecting network requests.
+**Test like your users will use it.**
 
-If a button is broken, we WILL find it.
+They'll use Chrome AND Firefox AND Safari. They'll click buttons AND submit forms AND refresh pages. They'll have slow connections AND old browsers AND screen readers.
+
+We check ALL of it. No exceptions.
