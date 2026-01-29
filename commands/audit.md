@@ -14,10 +14,12 @@ Complete audit flow before pushing. Runs all checks in sequence, then requires y
 3. /architecture  → Is the structure maintainable?
 4. /tests         → Are tests meaningful?
 5. /observability → Can we see what's happening in prod?
-6. /ui            → Does the UI give users feedback? (if frontend)
-7. /review        → What bugs are hiding?
-8. /security-audit → What can be exploited?
-9. /understand    → Can YOU explain this code?
+6. /ui            → Does the UI actually look right? (if frontend)
+7. /flow          → Do the buttons actually work? (if frontend)
+8. /review        → What bugs are hiding?
+9. /security-audit → What can be exploited in code?
+10. /shipping     → What deployment config is broken?
+11. /understand   → Can YOU explain this code?
 
 → Final Report + Sign-off
 ```
@@ -61,12 +63,23 @@ Run each check in sequence. Track findings as you go.
 - Record: GOOD / NEEDS WORK / BLIND
 
 **6. UI/UX Check (`/ui` logic)** - *Skip if no frontend*
+- **Visual judgment** - Actually LOOK at the screen. Proportions right? Anything look broken?
+- Check for the 14 common visual bugs (contrast, alignment, overflow, etc.)
 - Check visibility of system status (feedback for every action)
 - Verify all five states handled (loading, empty, error, success, edge)
 - Check accessibility basics (keyboard, focus, ARIA)
 - Look for AI NO-NOs (silent buttons, blank voids, cryptic errors)
-- Assess microcopy (human voice vs robot speak)
-- Record: HUMAN / NEEDS WORK / AI SLOP
+- Look for amateur red flags (inconsistent spacing, fonts, alignment)
+- Does it look like "AI slop" or like a real product?
+- Record: PROFESSIONAL / NEEDS WORK / AMATEUR
+
+**7. UI Flow Test (`/flow` logic)** - *Skip if no frontend*
+- Can you actually click every button and have something happen?
+- Do forms submit and show feedback?
+- Do all links go somewhere that exists?
+- Any overlapping clickable elements?
+- Any elements too small to tap on mobile?
+- Record: ALL WORKING / HAS ISSUES / BROKEN BUTTONS
 
 ### Phase 3: Risk Assessment
 
@@ -79,12 +92,23 @@ Run each check in sequence. Track findings as you go.
 **8. Security Audit (`/security-audit` logic)**
 - Check auth and token handling
 - Look for injection vulnerabilities
+- Check for vibe-coding specific issues (client-side auth, hardcoded creds)
 - Assess blast radius
 - Record: LOW RISK / MEDIUM RISK / HIGH RISK / CRITICAL
 
+**9. Shipping/Deployment Check (`/shipping` logic)**
+- Source maps exposed? (leaking full source code)
+- Supabase/Firebase RLS actually restrictive?
+- Admin routes protected by middleware (not just hidden)?
+- Security headers present (HSTS, CSP, X-Frame-Options)?
+- Any secrets in frontend JS bundle?
+- Rate limiting on auth endpoints?
+- Debug endpoints disabled?
+- Record: READY TO DEPLOY / CONFIG ISSUES / NOT SAFE
+
 ### Phase 4: Understanding Check
 
-**9. Code Understanding (`/understand` logic)**
+**10. Code Understanding (`/understand` logic)**
 
 Before signing off, the developer must explain:
 
@@ -114,9 +138,11 @@ Lines added/removed: [+X / -Y]
 | Architecture | [PASS/FAIL] | [count] |
 | Tests | [PASS/FAIL] | [count] |
 | Observability | [PASS/FAIL] | [count] |
-| UI/UX | [PASS/FAIL/SKIP] | [count] |
+| UI/UX Visual | [PASS/FAIL/SKIP] | [count] |
+| UI Flow Test | [PASS/FAIL/SKIP] | [count] |
 | Code Review | [PASS/FAIL] | [count] |
-| Security | [PASS/FAIL] | [count] |
+| Security (Code) | [PASS/FAIL] | [count] |
+| Shipping (Deploy) | [PASS/FAIL] | [count] |
 
 ### Critical Issues (Must Fix)
 [List or "None"]

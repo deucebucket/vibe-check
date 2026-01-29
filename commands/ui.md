@@ -20,6 +20,199 @@ Consumer enthusiasm for AI content dropped from 60% (2023) to 26% (2025). Users 
 
 ---
 
+## Part 0: Visual Judgment - Actually LOOK at the Screen
+
+**The biggest failure mode:** AI says "looks good" when the UI is obviously broken.
+
+Claude will generate a game with a tiny character sprite in a giant empty window and say "perfect!" It will make an ugly menu and call it "clean design." It will create overlapping elements and not notice.
+
+**This section is about having actual eyes.** Not validating that elements exist, but judging whether they look right.
+
+### The Screenshot Test
+
+When reviewing a screenshot or UI, ask:
+
+1. **First Impression** (within 2 seconds)
+   - What looks wrong immediately?
+   - What would make someone laugh at this?
+   - Would you show this to a client?
+
+2. **Proportion Check**
+   - Is anything tiny in a space that's huge? (sprite in giant window)
+   - Is anything massive that should be subtle? (giant buttons, oversized icons)
+   - Do elements fill their containers appropriately?
+
+3. **Overlap & Collision Check**
+   - Is any text covered by other elements?
+   - Are any elements overlapping each other?
+   - Is anything cut off at the edges?
+
+4. **Professional Gut Check**
+   - Does this look amateur or professional?
+   - Does this look like a real product or a school project?
+   - Would a user trust this with their credit card?
+
+### The 14 Common Visual Bugs
+
+These are the exact bugs found in real apps. **Check for all of them:**
+
+| Bug | What It Looks Like | Where to Look |
+|-----|-------------------|---------------|
+| **Cross-browser breakage** | Works in Chrome, broken in Firefox/Safari | Test in multiple browsers |
+| **Responsive fails** | Desktop perfect, mobile disasters | Resize window, test phone |
+| **Color contrast** | White text on light gray, unreadable | Text on backgrounds |
+| **Alignment issues** | Things don't line up, look messy | Grids, forms, cards |
+| **Broken links/buttons** | Click and nothing happens | Every interactive element |
+| **Invisible clickables** | Element is clickable but looks static | Hover over everything |
+| **Font inconsistency** | Mixed fonts, sizes, weights randomly | Scan all text |
+| **Slow loading** | Blank areas, stuttering, frozen | First load, navigation |
+| **Bad icons** | Unclear meaning, inconsistent style | All icons |
+| **Cluttered popups** | Tiny X button, overwhelming content | Modals, tooltips |
+| **Messy layout** | Visual chaos, no clear hierarchy | Overall page scan |
+| **Scroll issues** | Stuttering, janky, or broken scroll | Scroll through all content |
+| **Complex navigation** | Can't find things, too many levels | Try to navigate |
+| **Spacing chaos** | Random gaps, cramped areas, inconsistent padding | Between all elements |
+
+### Amateur Design Red Flags
+
+These scream "beginner made this" - catch them before shipping:
+
+**Visual Red Flags:**
+- [ ] Pixelated or blurry images
+- [ ] Stock photos that look like stock photos
+- [ ] Inconsistent icon styles (mixing outline/filled/different sets)
+- [ ] Gradients that clash or look dated
+- [ ] Drop shadows that are too harsh or inconsistent
+- [ ] Borders everywhere (the "1px solid #ccc" disease)
+- [ ] Too many colors competing
+- [ ] Text that's hard to read (contrast, size, font)
+
+**Layout Red Flags:**
+- [ ] Nothing is aligned to anything else
+- [ ] Inconsistent spacing (some tight, some loose)
+- [ ] No clear visual hierarchy (everything same importance)
+- [ ] Empty space used badly (either cramped or vast emptiness)
+- [ ] Elements floating randomly
+- [ ] Content too wide (over 70-80 characters per line)
+
+**Interaction Red Flags:**
+- [ ] Buttons that don't look clickable
+- [ ] Links that don't look like links
+- [ ] Hover states that are jarring or missing
+- [ ] Focus states invisible (accessibility fail)
+- [ ] Forms with no clear flow
+
+**Content Red Flags:**
+- [ ] Lorem ipsum or placeholder text visible
+- [ ] Broken images (alt text showing)
+- [ ] Empty areas with no content and no explanation
+- [ ] Different writing styles/tones in same app
+- [ ] Spelling/grammar errors
+- [ ] Console errors visible in the page
+
+### The "AI Look" Detector
+
+Does this look like every other AI-generated site? Warning signs:
+
+- [ ] Same gradient patterns (purple-to-blue, orange-to-pink)
+- [ ] Same card layouts with rounded corners and shadows
+- [ ] Same hero section with big text and gradient button
+- [ ] Same exact Tailwind/shadcn component library look
+- [ ] Generic illustrations that say nothing
+- [ ] "Clean" but completely forgettable
+- [ ] No personality, no brand voice
+- [ ] Looks like a template with content swapped
+
+**If you can't tell your app apart from 100 others, that's a problem.**
+
+### Proportion & Scale Judgment
+
+**The Tiny-in-Giant Problem:**
+```
+BAD:  +---------------------------+
+      |                           |
+      |         [tiny]            |
+      |                           |
+      +---------------------------+
+
+GOOD: +---------------------------+
+      |   +-------------------+   |
+      |   |   Appropriate     |   |
+      |   |   scale content   |   |
+      |   +-------------------+   |
+      +---------------------------+
+```
+
+**The Giant-in-Tiny Problem:**
+```
+BAD:  +-------+
+      |[HUGE ]|  (button overwhelming container)
+      +-------+
+
+GOOD: +----------+
+      | [Button] |  (proportional)
+      +----------+
+```
+
+**Rules of thumb:**
+- Content should fill 60-80% of its container (not 10%, not 100%)
+- Touch targets minimum 44x44px
+- Text shouldn't span more than ~70 characters per line
+- Padding should be consistent (8px, 16px, 24px, 32px scale)
+- Nothing should feel cramped or lost in space
+
+### Information Display Check
+
+**At every moment, can the user answer:**
+- What is happening RIGHT NOW?
+- What JUST happened?
+- What will happen NEXT?
+- How long will this take?
+- Did my action work?
+
+**If the answer to any of these is "I don't know," that's a bug.**
+
+Example - Download button:
+```
+WRONG: Click → Nothing visible → File eventually appears
+RIGHT: Click → "Preparing download..." → Progress bar → "Download complete!"
+
+At each stage, user knows exactly what's happening.
+```
+
+### Visual Review Protocol
+
+**When you (Claude) are reviewing a UI:**
+
+1. **DON'T say "looks good" automatically.** Actually evaluate it.
+
+2. **DON'T validate existence.** "The button is there" isn't a review.
+
+3. **DO call out what's wrong.** Be specific: "The character sprite is tiny (50px) in a window that's 800px - needs to be at least 200px to look intentional."
+
+4. **DO suggest fixes.** Don't just identify problems - say how to fix them.
+
+5. **DO compare to professional examples.** Would this hold up next to a polished app?
+
+6. **DO check at multiple sizes.** Desktop, tablet, mobile.
+
+7. **DO check different states.** Empty, loading, error, full.
+
+**Example honest review:**
+```
+"The main menu has issues:
+- Font size inconsistent (16px, 14px, 18px randomly)
+- Too much padding on left, not enough on right
+- Active state is barely visible (should be more prominent)
+- Icons are different styles (outline mixing with filled)
+- Overall feels cramped and unpolished
+
+Recommend: Standardize to 16px font, 16px padding, use only outline icons,
+make active state have a background color not just bold text."
+```
+
+---
+
 ## Part 1: The Visibility Principle
 
 **Nielsen's #1 Heuristic**: "The system should always keep users informed about what is going on, through appropriate feedback within reasonable time."

@@ -2,6 +2,11 @@
 
 This audit catches the security mistakes that vibe coders commonly make. These are the issues that get apps with 39k users hacked.
 
+**Stats that should scare you:**
+- 45% of AI-generated code contains at least one flaw (Veracode 2025)
+- 2000+ high-impact vulnerabilities found in 5600 vibe-coded apps (Escape.tech)
+- 1 in 3 vibe-coded SaaS apps had gaping security holes when audited
+
 ## The Mindset
 
 Before checking code, internalize these assumptions:
@@ -9,6 +14,7 @@ Before checking code, internalize these assumptions:
 - **Assume tokens will leak eventually**
 - **Assume users will do things you didn't imagine**
 - **Assume third parties will fail or change behavior**
+- **Assume AI forgot basic security practices** (it probably did)
 
 The killer question for every sensitive operation: **"If this token/credential leaks, what's the blast radius?"**
 
@@ -52,6 +58,82 @@ Review the codebase (focus on recent changes, but check architecture too) for th
 - [ ] Sensitive actions are logged (who did what when)
 - [ ] Failed auth attempts are logged
 - [ ] There's a way to answer "who accessed X and when"
+
+### 7. Vibe-Coding Specific Vulnerabilities
+
+These are the issues AI generates constantly. Check specifically for these:
+
+**Client-Side Auth (THE #1 AI MISTAKE):**
+```javascript
+// AI GENERATES THIS CONSTANTLY - IT'S BROKEN
+if (localStorage.getItem('isAdmin') === 'true') {
+  showAdminPanel()  // Anyone can set this in devtools!
+}
+
+// ALSO BROKEN
+if (user.role === 'admin') {
+  return <AdminButton />  // Hiding button != protecting route
+}
+```
+- [ ] No localStorage/sessionStorage checks for auth decisions
+- [ ] No client-side only role checks
+- [ ] All admin logic verified server-side
+
+**Hardcoded Credentials (AI DOES THIS):**
+```javascript
+// AI literally generates this
+const db = mysql.connect({
+  host: 'localhost',
+  user: 'root',
+  password: 'password123'  // In production code!
+})
+```
+- [ ] No credentials hardcoded in any file
+- [ ] No API keys in frontend JavaScript
+- [ ] Check for: `password`, `secret`, `key`, `token` in code
+
+**Business Logic Flaws (AI CAN'T DO LOGIC):**
+```javascript
+// AI generates code that allows:
+// - Ordering negative quantities (get refund for nothing)
+// - Setting negative prices (get paid to buy)
+// - Changing other users' data by editing request
+// - Skipping required steps in a flow
+```
+- [ ] Negative values validated where inappropriate
+- [ ] Price/quantity manipulation not possible
+- [ ] Users can't modify other users' resources
+- [ ] Multi-step flows can't be bypassed
+
+**Missing Input Sanitization:**
+- [ ] All user input sanitized before database
+- [ ] All user input escaped before HTML rendering
+- [ ] File paths validated (no `../../../etc/passwd`)
+- [ ] URLs validated before fetch/redirect
+
+**"Hallucinated Bypass" - AI Removes Security:**
+Sometimes AI removes security checks while "fixing" code. Check:
+- [ ] Auth middleware still present on protected routes
+- [ ] Rate limiting still active
+- [ ] Validation still happening
+- [ ] Compare with previous version if security feels lighter
+
+### 8. Supabase/Firebase Specific
+
+If using BaaS, these are the common disasters:
+
+**Supabase:**
+- [ ] RLS enabled on ALL tables with user data
+- [ ] RLS policies actually restrict (not `USING (true)`)
+- [ ] Tested: anon key can't read other users' data
+- [ ] Service key ONLY used server-side
+- [ ] No `select *` from users table possible via anon
+
+**Firebase:**
+- [ ] Security rules exist and are not `allow read, write: if true`
+- [ ] Rules restrict by authenticated user
+- [ ] Admin SDK only used server-side
+- [ ] No public read of user collection
 
 ## Output Format
 

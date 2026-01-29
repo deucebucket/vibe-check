@@ -8,11 +8,22 @@ Research shows AI-generated code has serious issues:
 
 | Problem | Stat | Source |
 |---------|------|--------|
+| Security flaws | 45% of AI code has vulnerabilities | Veracode 2025 |
+| Real-world audit | 1 in 3 vibe-coded apps had gaping holes | Reddit audit |
+| Mass vulnerability | 2000+ vulnerabilities in 5600 apps | Escape.tech |
 | More bugs | AI code creates 1.7x more issues | CodeRabbit |
-| Security holes | 45% of AI code has vulnerabilities | Veracode |
 | Fake packages | 21.7% of AI-suggested packages don't exist | UTSA |
 | No testing | 36% of vibe coders skip QA entirely | arxiv |
-| Logic errors | 2x more common in AI code | CodeRabbit |
+| User abandonment | 88% abandon after 1 bad AI experience | UX research |
+| "AI slop" fatigue | Enthusiasm dropped from 60% to 26% | 2023-2025 |
+
+**Common disasters found:**
+- Source maps leaking full source code (most common!)
+- Supabase RLS "on" but empty (fake security)
+- Admin routes unprotected (just hidden buttons)
+- Client-side auth checks (localStorage.isAdmin = true)
+- Tiny sprites in giant windows (visual disasters)
+- Buttons that do nothing when clicked
 
 The issue isn't AI - it's shipping code without review. These commands force the review step.
 
@@ -30,7 +41,9 @@ The issue isn't AI - it's shipping code without review. These commands force the
 | `/observability` | Logging, metrics, error tracking |
 | `/dry` | Code duplication |
 | `/understand` | Forces you to explain the code |
-| `/ui` | **NEW** UI/UX reality check - feedback, states, accessibility |
+| `/ui` | UI/UX reality check - visual judgment, feedback, states, accessibility |
+| `/shipping` | **NEW** Deployment security - source maps, RLS, headers, exposed keys |
+| `/flow` | **NEW** UI flow testing - actually click the damn buttons |
 
 ## Install
 
@@ -178,26 +191,70 @@ If you can't explain it, don't ship it.
 
 AI forgets users can't see the 1s and 0s. They don't know if their click registered, if data is loading, or if the app crashed. Every action needs visible feedback.
 
+**NEW: Visual Judgment**
+
+Now includes critical eye for visual problems AI misses:
+- Tiny elements in giant containers (the "small sprite in huge window" problem)
+- Elements overlapping or covering text
+- Amateur design red flags (inconsistent spacing, fonts, alignment)
+- The "AI look" - generic template soup that looks like every other AI site
+- Proportion and scale issues
+
 **Checks:**
+- **Visual judgment** - Actually LOOK at the screen, not just validate existence
 - **Visibility of system status** - Does every action have feedback?
 - **Five states** - Loading, empty, error, success, edge cases all handled?
 - **Accessibility** - Keyboard navigation, focus states, screen reader support?
 - **Button states** - Hover, focus, active, disabled, loading?
 - **Form validation** - Inline errors, helpful messages, data preserved on error?
 - **Microcopy** - Human voice or robot speak?
+- **The 14 common visual bugs** - Contrast, alignment, overflow, responsiveness, etc.
+- **Amateur red flags** - Pixelated images, inconsistent icons, random spacing
 
-**AI NO-NOs it catches:**
-- Silent buttons (click happens, nothing visible)
-- Blank voids (no empty state guidance)
-- Cryptic errors ("Error 500" with no help)
-- Unescapable modals (no Escape key, no focus trap)
-- Frozen forms (submit with no loading state)
-- Missing hover/focus states
-- Robot voice microcopy
-
-**Output:** 20-point scoring system + specific issues + priority fixes
+**Output:** 20-point scoring system + specific visual issues + priority fixes
 
 **Use for:** Any UI before users see it
+
+---
+
+### `/shipping` - Deployment Security Check
+
+**Run BEFORE deploying to production.** Catches config issues that code review misses.
+
+These are the exact vulnerabilities found in 1/3 of vibe-coded apps audited:
+
+**Checks:**
+- **Source maps** - Are you leaking your full source code? (Most common issue!)
+- **Supabase RLS** - Is it "on" but empty? (Fake security)
+- **Protected routes** - Is /admin actually protected, or just hidden?
+- **HTTP headers** - CSP, HSTS, X-Frame-Options present?
+- **Exposed secrets** - API keys in your frontend JS bundle?
+- **Rate limiting** - Can bots hammer your auth endpoints forever?
+- **Debug endpoints** - /debug accessible in production?
+
+**Framework-specific checks for:** Next.js, Vite, React, Supabase, Firebase, Vercel
+
+**Use for:** Before every production deploy
+
+---
+
+### `/flow` - UI Flow Testing
+
+**API tests pass. Buttons are broken. This catches that.**
+
+AI testing focuses on APIs, not actual UI elements. This creates tests that actually click through your app like a real user.
+
+**Includes:**
+- **UI Discovery** - Crawl your app and map all buttons, forms, links
+- **Button tests** - Does every button actually do something when clicked?
+- **Form tests** - Do forms submit and show feedback?
+- **Link tests** - Do all links go somewhere that exists?
+- **Visual sanity** - Overlap detection, size validation, text cutoff
+- **User flow tests** - Complete journeys (signup, login, checkout)
+
+**Tools:** Playwright-based test generation with code samples you can run
+
+**Use for:** Before shipping any UI, especially after "it works in my browser"
 
 ---
 
@@ -285,6 +342,18 @@ Add to `~/.claude/CLAUDE.md`:
 - User says "looks good" without testing
 - Forms, buttons, modals generated
 - Before any user-facing release
+
+**Suggest `/shipping` when:**
+- About to deploy to production
+- Using Supabase, Firebase, or similar BaaS
+- First deploy of a new project
+- User asks about security headers or config
+
+**Suggest `/flow` when:**
+- UI code is "complete" but not tested
+- User says "the API works"
+- After any UI changes
+- Before demo or launch
 ```
 
 ---
