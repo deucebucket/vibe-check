@@ -6,6 +6,34 @@ This command creates and runs interactive UI tests that **actually click through
 
 ---
 
+## Two Modes: Live Testing vs Generated Tests
+
+### `/live` - Test RIGHT NOW (Recommended)
+Uses Chrome DevTools MCP to control a real browser:
+- Claude clicks buttons in your running app
+- Sees console errors immediately
+- No test code to write
+- **Requires:** `chrome-devtools` MCP installed
+
+```
+Run /live to test your running app interactively
+```
+
+### `/flow` - Generate Tests for Later
+Creates Playwright test files you can run in CI:
+- Test code you can commit
+- Runs in pipelines
+- Regression testing
+- **Requires:** Playwright installed
+
+---
+
+**If your app is running and you just want to test it NOW, use `/live` instead.**
+
+---
+
+---
+
 ## Why This Exists
 
 AI-generated tests focus on APIs:

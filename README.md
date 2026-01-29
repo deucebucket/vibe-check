@@ -42,8 +42,9 @@ The issue isn't AI - it's shipping code without review. These commands force the
 | `/dry` | Code duplication |
 | `/understand` | Forces you to explain the code |
 | `/ui` | UI/UX reality check - visual judgment, feedback, states, accessibility |
-| `/shipping` | **NEW** Deployment security - source maps, RLS, headers, exposed keys |
-| `/flow` | **NEW** UI flow testing - actually click the damn buttons |
+| `/shipping` | Deployment security - source maps, RLS, headers, exposed keys |
+| `/flow` | UI flow testing - generate Playwright tests |
+| `/live` | **NEW** Live browser testing - Claude controls Chrome via MCP |
 
 ## Install
 
@@ -238,23 +239,57 @@ These are the exact vulnerabilities found in 1/3 of vibe-coded apps audited:
 
 ---
 
-### `/flow` - UI Flow Testing
+### `/flow` - UI Flow Testing (Generate Tests)
 
 **API tests pass. Buttons are broken. This catches that.**
 
-AI testing focuses on APIs, not actual UI elements. This creates tests that actually click through your app like a real user.
+Generates Playwright test code that clicks through your app like a real user.
 
 **Includes:**
 - **UI Discovery** - Crawl your app and map all buttons, forms, links
 - **Button tests** - Does every button actually do something when clicked?
 - **Form tests** - Do forms submit and show feedback?
-- **Link tests** - Do all links go somewhere that exists?
 - **Visual sanity** - Overlap detection, size validation, text cutoff
 - **User flow tests** - Complete journeys (signup, login, checkout)
 
-**Tools:** Playwright-based test generation with code samples you can run
+**Use for:** CI/CD pipelines, regression testing, test documentation
 
-**Use for:** Before shipping any UI, especially after "it works in my browser"
+---
+
+### `/live` - Live Browser Testing (Interactive)
+
+**Claude controls a real browser and tests your running app.**
+
+Uses Chrome DevTools MCP to directly interact with your app - no screenshots, no vision models, just direct DOM access.
+
+**Prerequisites:**
+```bash
+claude mcp add chrome-devtools --scope user npx chrome-devtools-mcp@latest
+```
+
+**Capabilities (26 tools):**
+- **Click, fill, hover** - Interact with any element
+- **Run JavaScript** - Query the DOM directly
+- **Console access** - See all errors and warnings
+- **Network monitoring** - See all API calls and failures
+- **Performance analysis** - Lighthouse-style insights
+
+**Example usage:**
+```
+"Go to localhost:3000 and click every button. Report which ones don't work."
+"Test the signup flow with test@example.com and password123"
+"Check localhost:3000 for console errors"
+```
+
+**What it checks:**
+- Every button actually responds to clicks
+- Forms submit and show feedback
+- No console errors
+- No failed network requests
+- No overlapping clickable elements
+- No tiny touch targets
+
+**Use for:** Quick smoke tests, debugging, verifying fixes work
 
 ---
 
@@ -350,10 +385,16 @@ Add to `~/.claude/CLAUDE.md`:
 - User asks about security headers or config
 
 **Suggest `/flow` when:**
-- UI code is "complete" but not tested
-- User says "the API works"
-- After any UI changes
+- Need test code for CI/CD
+- Building regression test suite
+- Documenting expected behavior
+
+**Suggest `/live` when:**
+- App is running and needs quick test
+- User says "the API works" or "buttons work"
+- Debugging a specific UI issue
 - Before demo or launch
+- Verifying a fix actually works
 ```
 
 ---

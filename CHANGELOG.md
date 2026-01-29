@@ -2,6 +2,31 @@
 
 All notable changes to vibe-check will be documented in this file.
 
+## [2.1.0] - 2026-01-29
+
+### Added
+
+- **`/live`** - Live browser testing via Chrome DevTools MCP
+  - Claude controls a real Chrome browser
+  - Click buttons, fill forms, check console errors
+  - No vision models needed - direct DOM access
+  - 26 browser control tools available
+  - Network request monitoring
+  - Performance analysis
+
+### Changed
+
+- **`/flow`** - Now references `/live` for interactive testing
+  - `/flow` generates test code for CI/CD
+  - `/live` tests running apps interactively
+  - Clear guidance on when to use each
+
+### Prerequisites
+
+- Chrome DevTools MCP: `claude mcp add chrome-devtools --scope user npx chrome-devtools-mcp@latest`
+
+---
+
 ## [2.0.0] - 2026-01-29
 
 ### Added
